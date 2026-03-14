@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #f5f0e8;
+    color: #1a1108;
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-ink text-bg px-6 py-3 rounded-full font-body font-semibold text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg border-none;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 bg-accent text-white px-6 py-4 rounded-2xl font-display tracking-widest text-xl cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-xl border-none w-full;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 bg-transparent text-ink border border-border px-5 py-2.5 rounded-full font-body text-sm font-medium cursor-pointer transition-all hover:bg-ink hover:text-bg hover:border-ink;
+  }
+
+  .card {
+    @apply bg-white border border-border rounded-2xl p-6;
+  }
+
+  .chip {
+    @apply flex items-center gap-2 px-4 py-2 rounded-full border-2 border-border bg-white text-ink text-sm font-medium cursor-pointer transition-all select-none hover:border-ink;
+  }
+
+  .chip-selected {
+    @apply border-ink bg-ink text-bg;
+  }
+
+  .chip-out.chip-selected   { @apply bg-accent border-accent text-white; }
+  .chip-in.chip-selected    { @apply bg-green border-green text-white; }
+  .chip-active.chip-selected { background-color: #e76f51; border-color: #e76f51; @apply text-white; }
+  .chip-social.chip-selected { background-color: #457b9d; border-color: #457b9d; @apply text-white; }
+
+  .section-label {
+    @apply text-xs tracking-widest uppercase text-muted font-medium mb-2;
+  }
+
+  .section-title {
+    @apply font-display text-3xl tracking-wide text-ink mb-1;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Bebas Neue', sans-serif;
+  }
+
+  .font-serif-italic {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+  }
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.35;
+}
+
+/* Fade-up animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease both;
+}
+
+.animate-fade-up-delay-1 { animation-delay: 0.08s; }
+.animate-fade-up-delay-2 { animation-delay: 0.16s; }
+.animate-fade-up-delay-3 { animation-delay: 0.24s; }
+.animate-fade-up-delay-4 { animation-delay: 0.32s; }
+.animate-fade-up-delay-5 { animation-delay: 0.40s; }
