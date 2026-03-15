@@ -86,13 +86,13 @@ export default function VideoSelector() {
           >
             {/* Checkbox */}
             <div className={`w-5 h-5 rounded shrink-0 mt-0.5 border-2 flex items-center justify-center transition-all ${
-              selected.has(i) ? 'bg-ink border-ink' : 'border-border'
+            selected.has(i) ? 'bg-ink border-ink' : 'border-border'
             }`}>
-              {selected.has(i) && (
+            {selected.has(i) && (
                 <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              )}
+            )}
             </div>
 
             <div className="min-w-0">

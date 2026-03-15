@@ -5,40 +5,60 @@ const TYPE_CONFIG = {
   social:  { label: 'Social',  accent: '#457b9d', bg: '#edf3f8', text: '#356480' },
 };
 
-const CATEGORY_EMOJI = {
-  food: '🍜', outdoors: '🌿', creative: '🎨', gaming: '🎮',
-  fitness: '💪', music: '🎵', shopping: '🛍️', learning: '📚', social: '🥂',
-};
-
 export default function BroadCard({ activity, index, onClick }) {
   const config = TYPE_CONFIG[activity.type] || TYPE_CONFIG.stay_in;
-  const emoji  = CATEGORY_EMOJI[activity.category] || '✨';
   const delay  = `animate-fade-up-delay-${Math.min(index + 2, 5)}`;
 
   return (
-    <button onClick={onClick}
-      className={`card w-full text-left relative overflow-hidden group cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all animate-fade-up ${delay}`}>
+    <button
+      onClick={onClick}
+      className={`card w-full text-left relative overflow-hidden group cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all animate-fade-up ${delay}`}
+    >
       <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
         style={{ backgroundColor: config.accent }} />
+
       <div className="pl-2">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <span className="text-2xl">{emoji}</span>
+        {/* Type badge */}
+        <div className="mb-3">
           <span className="text-xs font-semibold tracking-wide px-2.5 py-1 rounded-full"
             style={{ backgroundColor: config.bg, color: config.text }}>
             {config.label}
           </span>
         </div>
-        <h3 className="font-semibold text-xl text-ink mb-2 leading-tight">{activity.title}</h3>
-        <p className="text-sm text-muted leading-relaxed font-light mb-4">{activity.hook}</p>
+
+        {/* Title */}
+        <h3 className="font-semibold text-xl text-ink mb-2 leading-tight">
+          {activity.title}
+        </h3>
+
+        {/* Hook */}
+        <p className="text-sm text-muted leading-relaxed font-light mb-3">
+          {activity.hook}
+        </p>
+
+        {/* Tags */}
+        {activity.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {activity.tags.map(tag => (
+              <span key={tag}
+                className="text-xs px-2 py-0.5 rounded-md bg-bg border border-border text-muted font-medium">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Why */}
         {activity.why && (
           <p className="text-xs text-muted italic border-t border-border pt-3 mb-3">
-            💡 {activity.why}
+            Based on: {activity.why}
           </p>
         )}
-        <div className="flex items-center gap-2 text-xs font-semibold tracking-wide"
+
+        {/* CTA */}
+        <div className="text-xs font-semibold tracking-wide group-hover:underline"
           style={{ color: config.accent }}>
-          Tap for your specific plan
-          <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+          Tap for your specific plan →
         </div>
       </div>
     </button>

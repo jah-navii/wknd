@@ -10,21 +10,27 @@ export function buildPlanPrompt(watchHistory, prefs) {
     ? watchHistory.slice(0, 35).map(v => `- "${v.title}" by ${v.channelTitle || 'unknown channel'}`).join('\n')
     : 'No history available — generate a well-rounded general plan.';
 
-  const vibeString = (prefs.vibes || []).map(v => VIBE_LABELS[v] || v).join(', ') || 'Any';
+  const whereStr    = (prefs.where    || []).join(', ') || 'any';
+  const whoStr      = (prefs.who      || []).join(', ') || 'any';
+  const moodStr     = (prefs.mood     || []).join(', ') || 'chill';
+  const durationStr = (prefs.duration || []).join(', ') || 'couple_hours';
 
-  return `You are a personalized weekend activity planner. Analyze someone's YouTube liked videos to infer their interests, then suggest broad weekend activity ideas.
+  return `You are a personalized weekend activity planner. Analyze someone's YouTube liked videos to infer their interests, then suggest weekend activity ideas.
 
 YOUTUBE LIKED VIDEOS:
 ${historyLines}
 
 USER PREFERENCES:
-- Activity types: ${vibeString}
-- Vibe: ${prefs.vibe || 'chill'}
+- Where: ${whereStr}
+- Who with: ${whoStr}
+- Mood: ${moodStr}
+- Duration: ${durationStr}
 
 INSTRUCTIONS:
 1. Infer 3-5 interest tags from the liked videos.
-2. Generate exactly 4 broad activity ideas. Keep them high-level and intriguing, NOT overly specific. The user taps a card to get details.
-3. Each activity type must match one of the user's chosen activity types.
+2. Generate exactly 4 broad activity ideas that match the preferences. Keep them high-level — the user taps a card to get specific details.
+3. Make sure activities respect ALL the preferences — e.g. if solo + stay_in + productive, don't suggest group outings.
+4. For each activity, include 2-3 relevant tags from the user's interest tags that directly relate to why this activity was suggested.
 
 Respond ONLY with valid JSON, no markdown, no backticks:
 
@@ -36,7 +42,8 @@ Respond ONLY with valid JSON, no markdown, no backticks:
       "title": "Short punchy activity name",
       "type": "go_out | stay_in | active | social",
       "hook": "One exciting sentence that makes them want to tap for more.",
-      "why": "One short sentence — which videos inspired this suggestion.",
+      "why": "One short sentence — which videos or interests inspired this suggestion.",
+      "tags": ["tag1", "tag2"],
       "category": "food | outdoors | creative | gaming | fitness | music | shopping | learning | social"
     }
   ]
