@@ -34,4 +34,7 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }, tokens),
+
+  drillDown: (body, tokens) =>
+  apiFetch('/plan/drill', { method: 'POST', body: JSON.stringify(body) }, tokens),
 };

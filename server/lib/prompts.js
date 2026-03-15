@@ -1,77 +1,82 @@
 const VIBE_LABELS = {
-  go_out: 'Going Out',
+  go_out:  'Going Out',
   stay_in: 'Staying In',
-  active: 'Active / Physical',
-  social: 'Social Activities',
+  active:  'Active / Physical',
+  social:  'Social Activities',
 };
 
-const ENERGY_LABELS = {
-  low: 'chill and relaxed',
-  medium: 'moderate energy',
-  high: 'high energy',
-};
-
-const BUDGET_LABELS = {
-  free: 'free or near-free',
-  low: 'low budget (under $20)',
-  medium: 'medium budget ($20–$60)',
-  high: 'willing to splurge ($60+)',
-};
-
-/**
- * Builds the system + user prompt for Claude.
- * @param {Array} watchHistory - [{ title, channelTitle }]
- * @param {Object} prefs - { vibes, duration, energy, budget }
- * @returns {string}
- */
 export function buildPlanPrompt(watchHistory, prefs) {
   const historyLines = watchHistory.length > 0
-    ? watchHistory
-        .slice(0, 35)
-        .map(v => `- "${v.title}" by ${v.channelTitle || 'unknown channel'}`)
-        .join('\n')
+    ? watchHistory.slice(0, 35).map(v => `- "${v.title}" by ${v.channelTitle || 'unknown channel'}`).join('\n')
     : 'No history available — generate a well-rounded general plan.';
 
-  const vibeString = (prefs.vibes || [])
-    .map(v => VIBE_LABELS[v] || v)
-    .join(', ') || 'Any';
+  const vibeString = (prefs.vibes || []).map(v => VIBE_LABELS[v] || v).join(', ') || 'Any';
 
-  const energyString = ENERGY_LABELS[prefs.energy] || prefs.energy;
-  const budgetString = BUDGET_LABELS[prefs.budget] || prefs.budget;
-  const duration = prefs.duration || 3;
+  return `You are a personalized weekend activity planner. Analyze someone's YouTube liked videos to infer their interests, then suggest broad weekend activity ideas.
 
-  return `You are a personalized weekend activity planner. Your job is to analyze someone's YouTube watch history to infer their genuine interests and passions, then create a tailored weekend plan that feels personal and exciting.
-
-YOUTUBE WATCH HISTORY (recent videos):
+YOUTUBE LIKED VIDEOS:
 ${historyLines}
 
 USER PREFERENCES:
-- Activity types wanted: ${vibeString}
-- Time available: ${duration} hours
-- Energy level: ${energyString}
-- Budget: ${budgetString}
+- Activity types: ${vibeString}
+- Vibe: ${prefs.vibe || 'chill'}
 
 INSTRUCTIONS:
-1. Analyze the watch history carefully. Look for patterns: topics they keep returning to, channels they follow, skills they're learning, hobbies they're exploring. Don't just look at surface titles — infer the underlying interest (e.g. "How to sharpen a knife" → cooking / culinary skills).
-2. Extract 4–6 interest tags that best represent this person.
-3. Generate 4–6 specific activity suggestions. Each activity must:
-   - Match the user's preferred activity types and be realistic for the time/energy/budget given
-   - Feel genuinely tailored to THIS person's interests, not generic
-   - Include a clear connection back to their watch history
+1. Infer 3-5 interest tags from the liked videos.
+2. Generate exactly 4 broad activity ideas. Keep them high-level and intriguing, NOT overly specific. The user taps a card to get details.
+3. Each activity type must match one of the user's chosen activity types.
 
-Respond ONLY with valid JSON. No markdown, no backticks, no extra text. Use this exact schema:
+Respond ONLY with valid JSON, no markdown, no backticks:
 
 {
-  "interests": ["tag1", "tag2", "tag3", "tag4"],
-  "planTitle": "A short, punchy, personalized title for their weekend plan (5 words max)",
+  "interests": ["tag1", "tag2", "tag3"],
+  "planTitle": "Punchy 3-4 word title",
   "activities": [
     {
-      "title": "Activity name (short, punchy)",
+      "title": "Short punchy activity name",
       "type": "go_out | stay_in | active | social",
-      "duration": "e.g. 1.5 hours",
-      "description": "2–3 sentences. What exactly to do, why it'll be great, any specific tips.",
-      "why": "One sentence connecting this activity to something specific in their watch history."
+      "hook": "One exciting sentence that makes them want to tap for more.",
+      "why": "One short sentence — which videos inspired this suggestion.",
+      "category": "food | outdoors | creative | gaming | fitness | music | shopping | learning | social"
     }
   ]
+}`;
+}
+
+export function buildDrillPrompt(activity, interests, nearbyPlaces) {
+  const isGoOut = ['go_out', 'active', 'social'].includes(activity.type);
+
+  const placesText = nearbyPlaces.length > 0
+    ? nearbyPlaces.map(p => `- ${p.name} (${p.vicinity}) — rating: ${p.rating || 'N/A'}`).join('\n')
+    : 'No nearby places available.';
+
+  const goOutSchema = `"places": [{ "name": "Place name from nearby list", "reason": "Why this fits", "tip": "Specific visit tip" }]`;
+  const stayInSchema = `"shoppingList": [{ "item": "Specific product name", "why": "What it is for" }]`;
+
+  return `You are a weekend activity specialist. The user picked an activity and wants a specific actionable plan.
+
+CHOSEN ACTIVITY: "${activity.title}"
+TYPE: ${activity.type}
+USER INTERESTS: ${interests.join(', ')}
+
+${isGoOut ? `NEARBY PLACES (real Google Places results):
+${placesText}
+
+Use these actual places in your recommendations.` : ''}
+
+For stay_in: suggest specific projects, exact products to buy, tutorials to follow, recipes to try.
+For go_out/active/social: recommend specific places from the nearby list, what to do there, tips.
+
+Respond ONLY with valid JSON, no markdown, no backticks:
+
+{
+  "title": "Specific catchy title",
+  "overview": "2-3 sentence exciting overview",
+  "steps": [
+    { "step": "Step title", "detail": "Specific actionable detail" }
+  ],
+  "tips": ["Tip 1", "Tip 2", "Tip 3"],
+  ${isGoOut ? goOutSchema : stayInSchema},
+  "timeEstimate": "e.g. 2-3 hours"
 }`;
 }
