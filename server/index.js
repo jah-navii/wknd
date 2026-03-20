@@ -24,7 +24,7 @@ const generalLimiter = rateLimit({
 
 const planLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,
+  max: 5,
   message: { error: 'Plan generation limit reached. Try again in an hour.' },
 });
 
